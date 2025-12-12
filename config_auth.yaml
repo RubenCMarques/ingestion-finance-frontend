@@ -1,0 +1,15 @@
+credentials:
+  usernames:
+    ruben:
+      name: Ruben
+      email: ruben@example.com
+      password: ${HASHED_PASSWORD}
+
+cookie:
+  name: finance_app_cookie
+  key: ${COOKIE_KEY}
+  expiry_days: 30
+
+
+preauthorized:
+  emails: []

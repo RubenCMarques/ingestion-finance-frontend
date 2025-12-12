@@ -1,0 +1,7 @@
+.env
+*.env
+*.sql
+*.key
+*.pem
+__pycache__/
+gen_hash.ipynb

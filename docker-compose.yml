@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    container_name: pf_db
+    environment:
+      POSTGRES_DB: finance
+      POSTGRES_USER: finance_user
+      POSTGRES_PASSWORD: finance_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: pf_app
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: finance
+      DB_USER: finance_user
+      DB_PASSWORD: finance_pass
+    depends_on:
+      - db
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+
+
+volumes:
+  db_data:
