@@ -6,4 +6,5 @@ python-dotenv
 jinja2
 python-multipart
 streamlit
-streamlit-authenticator
+streamlit-authenticator==0.2.3
+

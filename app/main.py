@@ -181,6 +181,12 @@ with open(CONFIG_PATH, "r") as f:
 raw_yaml = Template(raw_yaml).substitute(os.environ)
 
 config = yaml.load(raw_yaml, Loader=SafeLoader)
+authenticator = stauth.Authenticate(
+    config["credentials"],
+    config["cookie"]["name"],
+    config["cookie"]["key"],
+    config["cookie"]["expiry_days"],
+)
 
 authenticator = stauth.Authenticate(
     config["credentials"],
@@ -189,8 +195,11 @@ authenticator = stauth.Authenticate(
     config["cookie"]["expiry_days"],
 )
 
-name, authentication_status, username = authenticator.login("main")
+authenticator.login("main")
 
+authentication_status = st.session_state.get("authentication_status")
+name = st.session_state.get("name")
+username = st.session_state.get("username")
 
 if authentication_status is False:
     st.error("Username/password incorretos.")
@@ -199,3 +208,4 @@ elif authentication_status is None:
 elif authentication_status:
     authenticator.logout("Logout", "sidebar")
     main_app()
+
