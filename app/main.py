@@ -188,13 +188,6 @@ authenticator = stauth.Authenticate(
     config["cookie"]["expiry_days"],
 )
 
-authenticator = stauth.Authenticate(
-    config["credentials"],
-    config["cookie"]["name"],
-    config["cookie"]["key"],
-    config["cookie"]["expiry_days"],
-)
-
 authenticator.login("main")
 
 authentication_status = st.session_state.get("authentication_status")
@@ -208,5 +201,3 @@ elif authentication_status is False:
 
 else:
     st.warning("Por favor, introduz o teu username e password.")
-
-
