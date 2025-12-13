@@ -63,7 +63,7 @@ def seed_lookups():
                 ProductType(name="Stock"),
                 ProductType(name="Crypto"),
                 ProductType(name="Bond"),
-                ProductType(name="CFD")
+                ProductType(name="CFD"),
                 ProductType(name="Other"),
             ])
 
