@@ -21,6 +21,59 @@ from app.models import (
 # Criar tabelas (transactions + investments) se ainda não existirem
 Base.metadata.create_all(bind=engine)
 
+# Adding the options
+def seed_lookups():
+    with SessionLocal() as db:
+        if not db.query(MovementType).first():
+            db.add_all([
+                MovementType(name="Expense"),
+                MovementType(name="Income"),
+            ])
+
+        if not db.query(Category).first():
+            db.add_all([
+                Category(name="Restaurant"),
+                Category(name="Rent"),
+                Category(name="Transport"),
+                Category(name="Salary"),
+                Category(name="Given"),
+                Category(name="Monthly Subscription"),
+                Category(name="Travel"),
+                Category(name="Supermarket"),
+                Category(name="Health"),
+                Category(name="Entertainment"),
+                Category(name="Education"),
+                Category(name="Gift"),
+                Category(name="Hobbies"),
+                Category(name="Other"),                
+            ])
+
+        if not db.query(PaymentMethod).first():
+            db.add_all([
+                PaymentMethod(name="Card"),
+                PaymentMethod(name="Cash"),
+                PaymentMethod(name="Transfer"),
+                PaymentMethod(name="Revolut"),
+                PaymentMethod(name="MBWay"),
+            ])
+
+        if not db.query(ProductType).first():
+            db.add_all([
+                ProductType(name="ETF"),
+                ProductType(name="Stock"),
+                ProductType(name="Crypto"),
+                ProductType(name="Bond"),
+                ProductType(name="CFD")
+                ProductType(name="Other"),
+            ])
+
+        db.commit()
+
+
+
+
+
+
 # Base config
 st.set_page_config(
     page_title="Despesas / Investimentos",
