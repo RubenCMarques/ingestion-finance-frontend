@@ -198,14 +198,15 @@ authenticator = stauth.Authenticate(
 authenticator.login("main")
 
 authentication_status = st.session_state.get("authentication_status")
-name = st.session_state.get("name")
-username = st.session_state.get("username")
 
-if authentication_status is False:
-    st.error("Username/password incorretos.")
-elif authentication_status is None:
-    st.warning("Por favor, introduz o teu username e password.")
-elif authentication_status:
+if authentication_status:
     authenticator.logout("Logout", "sidebar")
     main_app()
+
+elif authentication_status is False:
+    st.error("Username/password incorretos.")
+
+else:
+    st.warning("Por favor, introduz o teu username e password.")
+
 
