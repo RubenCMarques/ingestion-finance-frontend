@@ -95,7 +95,7 @@ st.set_page_config(
 def main_app():
     st.title("Ingestion App Finance")
 
-    # Carregar listas das tabelas de lookup
+    # Load lookup tables
     with SessionLocal() as db:
         movement_type_map = {mt.name: mt.id for mt in db.query(MovementType).all()}
         category_map = {c.name: c.id for c in db.query(Category).all()}
@@ -107,31 +107,26 @@ def main_app():
     payment_method_choices = list(payment_method_map.keys())
     product_type_choices = list(product_type_map.keys())
 
-    # Tipo de registo (decide qual dos formulários deve aparecer)
     type_ = st.selectbox("Tipo", transaction_type_choices + ["Investment"])
 
-    # Expense/Income settings
+    # ---------------- EXPENSE / INCOME ----------------
     if type_ in transaction_type_choices:
         amount = st.number_input("Valor", min_value=0.0, step=0.01, format="%.2f")
-        currency = st.selectbox(
-            "Moeda",
-            ["EUR", "USD", "GBP", "JPY", "CHF"],
-        )
+        currency = st.selectbox("Moeda", ["EUR", "USD", "GBP", "JPY", "CHF"])
 
-        if category_choices:
-            category_name = st.selectbox("Categoria", category_choices)
-        else:
-            category_name = None
-            st.warning("Ainda não existem categorias na base de dados.")
+        category_name = (
+            st.selectbox("Categoria", category_choices)
+            if category_choices
+            else None
+        )
 
         selected_date = st.date_input(
             "Data",
             value=st.session_state.get("selected_date", date.today()),
             key="selected_date",
         )
-        st.text_input(
-            "Loja", value=st.session_state.get("store", ""), key="store"
-        )
+
+        store = st.text_input("Loja", value=st.session_state.get("store", ""), key="store")
 
         payment_method_name = st.selectbox(
             "Método de Pagamento",
@@ -141,17 +136,17 @@ def main_app():
         source = st.text_input("Fonte (opcional)")
         notes = st.text_area("Notas (opcional)")
 
-    # Investmennt settings
-    elif type_ == "Investment":
+    # ---------------- INVESTMENT ----------------
+    else:
         st.subheader("Detalhes do Investimento")
 
         ticker = st.text_input("Ticker / Nome do Ativo (ex: AAPL, VWCE, BTC)")
 
-        if product_type_choices:
-            product_type_name = st.selectbox("Tipo de Produto", product_type_choices)
-        else:
-            product_type_name = None
-            st.warning("Ainda não existem tipos de produto na base de dados.")
+        product_type_name = (
+            st.selectbox("Tipo de Produto", product_type_choices)
+            if product_type_choices
+            else None
+        )
 
         unit_price = st.number_input(
             "Preço por unidade (€)", min_value=0.0, step=0.01, format="%.2f"
@@ -166,10 +161,11 @@ def main_app():
         quantity = st.number_input(
             "Quantidade comprada", min_value=0.0, step=0.01, format="%.4f"
         )
+
         currency = st.selectbox("Moeda", ["EUR", "USD", "GBP", "JPY", "CHF"])
         notes = st.text_area("Notas (opcional)")
 
-    # Save
+    # ---------------- SAVE ----------------
     if st.button("Guardar"):
         db: Session = SessionLocal()
 
@@ -180,28 +176,22 @@ def main_app():
                 elif not category_name:
                     st.error("Tens de escolher uma categoria.")
                 else:
-                    movement_type_id = movement_type_map[type_]
-                    category_id = category_map.get(category_name)
-                    payment_method_id = (
-                        payment_method_map.get(payment_method_name)
-                        if payment_method_name
-                        else None
-                    )
-
                     tx = Transaction(
-                        movement_type_id=movement_type_id,
+                        movement_type_id=movement_type_map[type_],
                         amount=amount,
                         currency=currency,
-                        category_id=category_id,
-                        payment_method_id=payment_method_id,
-                        source=source or None,
+                        category_id=category_map[category_name],
+                        payment_method_id=payment_method_map.get(payment_method_name),
+                        transaction_date=selected_date,
+                        source=store or None,
                         notes=notes or None,
                     )
+
                     db.add(tx)
                     db.commit()
                     st.success("Despesa/Receita guardada")
 
-            elif type_ == "Investment":
+            else:
                 if not ticker:
                     st.error("O ticker é obrigatório para investimentos.")
                 elif unit_price <= 0 or quantity <= 0:
@@ -209,28 +199,34 @@ def main_app():
                 elif not product_type_name:
                     st.error("Tens de escolher um tipo de produto.")
                 else:
-                    total_value = unit_price * quantity
-                    product_type_id = product_type_map[product_type_name]
-
                     inv = Investment(
                         ticker=ticker,
-                        product_type_id=product_type_id,
+                        product_type_id=product_type_map[product_type_name],
                         unit_price=unit_price,
                         quantity=quantity,
-                        total_value=total_value,
+                        total_value=unit_price * quantity,
                         currency=currency,
+                        investment_date=selected_date,
                         notes=notes or None,
                     )
+
                     db.add(inv)
                     db.commit()
                     st.success("Investimento guardado")
 
+            # ---------- RESET FORM ----------
+            for key in list(st.session_state.keys()):
+                if key not in ("authentication_status", "username"):
+                    del st.session_state[key]
+
+            st.rerun()
+
         except Exception as e:
             db.rollback()
             st.error(f"Erro ao guardar: {e}")
+
         finally:
             db.close()
-
 
 # AUTENTICAÇÃO
 

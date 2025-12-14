@@ -9,8 +9,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from sqlalchemy import Date
 
 from .database import Base
+
 
 
 # ---------- LOOKUP / DIM TABLES ----------
@@ -54,6 +56,11 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
+
+    # DATE YOU SELECT IN THE FORM
+    transaction_date = Column(Date, nullable=False)
+
+    # DATE THE ROW WAS INSERTED
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # instead of type="Expense"/"Income", we point to a movement_types row
@@ -77,6 +84,8 @@ class Investment(Base):
     __tablename__ = "investments"
 
     id = Column(Integer, primary_key=True, index=True)
+
+    investment_date = Column(Date, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     ticker = Column(String(50), nullable=False)     # ex: AAPL, VWCE, BTC
