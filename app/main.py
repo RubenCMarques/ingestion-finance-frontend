@@ -80,6 +80,7 @@ def seed_lookups():
 
 
 
+seed_lookups()
 
 
 
