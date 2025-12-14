@@ -182,7 +182,7 @@ def main_app():
                         currency=currency,
                         category_id=category_map[category_name],
                         payment_method_id=payment_method_map.get(payment_method_name),
-                        transaction_date=selected_date,
+                        created_at=selected_date,
                         source=store or None,
                         notes=notes or None,
                     )
@@ -206,7 +206,7 @@ def main_app():
                         quantity=quantity,
                         total_value=unit_price * quantity,
                         currency=currency,
-                        investment_date=selected_date,
+                        created_at=selected_date,
                         notes=notes or None,
                     )
 
