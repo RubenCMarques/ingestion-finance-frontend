@@ -109,64 +109,60 @@ def main_app():
 
     type_ = st.selectbox("Tipo", transaction_type_choices + ["Investment"])
 
-    # ---------------- EXPENSE / INCOME ----------------
-    if type_ in transaction_type_choices:
-        amount = st.number_input("Valor", min_value=0.0, step=0.01, format="%.2f")
-        currency = st.selectbox("Moeda", ["EUR", "USD", "GBP", "JPY", "CHF"])
+    # ================= FORM =================
+    with st.form("finance_form", clear_on_submit=True):
 
-        category_name = (
-            st.selectbox("Categoria", category_choices)
-            if category_choices
-            else None
-        )
+        # -------- EXPENSE / INCOME --------
+        if type_ in transaction_type_choices:
+            amount = st.number_input("Valor", min_value=0.0, step=0.01, format="%.2f")
+            currency = st.selectbox("Moeda", ["EUR", "USD", "GBP", "JPY", "CHF"])
 
-        selected_date = st.date_input(
-            "Data",
-            value=st.session_state.get("selected_date", date.today()),
-            key="selected_date",
-        )
+            category_name = (
+                st.selectbox("Categoria", category_choices)
+                if category_choices
+                else None
+            )
 
-        store = st.text_input("Loja", value=st.session_state.get("store", ""), key="store")
+            selected_date = st.date_input("Data", value=date.today())
+            store = st.text_input("Loja")
 
-        payment_method_name = st.selectbox(
-            "Método de Pagamento",
-            [""] + payment_method_choices if payment_method_choices else [""],
-        )
+            payment_method_name = st.selectbox(
+                "Método de Pagamento",
+                [""] + payment_method_choices if payment_method_choices else [""],
+            )
 
-        source = st.text_input("Fonte (opcional)")
-        notes = st.text_area("Notas (opcional)")
+            source = st.text_input("Fonte (opcional)")
+            notes = st.text_area("Notas (opcional)")
 
-    # ---------------- INVESTMENT ----------------
-    else:
-        st.subheader("Detalhes do Investimento")
+        # -------- INVESTMENT --------
+        else:
+            st.subheader("Detalhes do Investimento")
 
-        ticker = st.text_input("Ticker / Nome do Ativo (ex: AAPL, VWCE, BTC)")
+            ticker = st.text_input("Ticker / Nome do Ativo (ex: AAPL, VWCE, BTC)")
 
-        product_type_name = (
-            st.selectbox("Tipo de Produto", product_type_choices)
-            if product_type_choices
-            else None
-        )
+            product_type_name = (
+                st.selectbox("Tipo de Produto", product_type_choices)
+                if product_type_choices
+                else None
+            )
 
-        unit_price = st.number_input(
-            "Preço por unidade (€)", min_value=0.0, step=0.01, format="%.2f"
-        )
+            unit_price = st.number_input(
+                "Preço por unidade (€)", min_value=0.0, step=0.01, format="%.2f"
+            )
 
-        selected_date = st.date_input(
-            "Data",
-            value=st.session_state.get("selected_date", date.today()),
-            key="selected_date",
-        )
+            selected_date = st.date_input("Data", value=date.today())
 
-        quantity = st.number_input(
-            "Quantidade comprada", min_value=0.0, step=0.01, format="%.4f"
-        )
+            quantity = st.number_input(
+                "Quantidade comprada", min_value=0.0, step=0.01, format="%.4f"
+            )
 
-        currency = st.selectbox("Moeda", ["EUR", "USD", "GBP", "JPY", "CHF"])
-        notes = st.text_area("Notas (opcional)")
+            currency = st.selectbox("Moeda", ["EUR", "USD", "GBP", "JPY", "CHF"])
+            notes = st.text_area("Notas (opcional)")
 
-    # ---------------- SAVE ----------------
-    if st.button("Guardar"):
+        submit = st.form_submit_button("Guardar")
+
+    # ================= SAVE LOGIC =================
+    if submit:
         db: Session = SessionLocal()
 
         try:
@@ -213,13 +209,6 @@ def main_app():
                     db.add(inv)
                     db.commit()
                     st.success("Investimento guardado")
-
-            # ---------- RESET FORM ----------
-            for key in list(st.session_state.keys()):
-                if key not in ("authentication_status", "username"):
-                    del st.session_state[key]
-
-            st.rerun()
 
         except Exception as e:
             db.rollback()
