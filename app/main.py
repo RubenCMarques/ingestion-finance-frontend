@@ -21,6 +21,15 @@ from app.models import (
 # Criar tabelas (transactions + investments) se ainda não existirem
 Base.metadata.create_all(bind=engine)
 
+
+with SessionLocal() as db:
+    if db.query(MovementType).count() == 0:
+        db.add_all([
+            MovementType(name="Expense"),
+            MovementType(name="Income"),
+        ])
+        db.commit()
+
 # Adding the options
 def seed_lookups():
     with SessionLocal() as db:
