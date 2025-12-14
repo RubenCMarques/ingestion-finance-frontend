@@ -57,13 +57,8 @@ class Transaction(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    # DATE YOU SELECT IN THE FORM
-    transaction_date = Column(Date, nullable=False)
-
-    # DATE THE ROW WAS INSERTED
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # instead of type="Expense"/"Income", we point to a movement_types row
     movement_type_id = Column(Integer, ForeignKey("movement_types.id"), nullable=False)
     movement_type = relationship("MovementType")
 
@@ -80,15 +75,16 @@ class Transaction(Base):
     notes = Column(String(500), nullable=True)
 
 
+
+
 class Investment(Base):
     __tablename__ = "investments"
 
     id = Column(Integer, primary_key=True, index=True)
 
-    investment_date = Column(Date, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    ticker = Column(String(50), nullable=False)     # ex: AAPL, VWCE, BTC
+    ticker = Column(String(50), nullable=False)
 
     product_type_id = Column(Integer, ForeignKey("product_types.id"), nullable=False)
     product_type = relationship("ProductType")
